@@ -1,0 +1,79 @@
+<!-- financeiro/templates/financeiro/listar_contas_pagar.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas a Pagar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f7fa;
+        }
+        .table thead th {
+            background-color: #007bff;
+            color: white;
+        }
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .btn-link {
+            color: #007bff;
+        }
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .no-data {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card p-4">
+            <h2 class="mb-4 text-center">Contas a Pagar</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Data de Vencimento</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conta in contas %}
+                    <tr>
+                        <td>{{ conta.descricao }}</td>
+                        <td>{{ conta.valor }}</td>
+                        <td>{{ conta.data_vencimento }}</td>
+                        <td>{{ conta.pago|yesno:"Pago,Nao Pago" }}</td>
+                        <td>
+                            {% if not conta.pago %}
+                            <a href="{% url 'marcar_pago' conta.id %}" class="btn btn-link">Marcar como Pago</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="no-data">Nenhuma conta encontrada</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'adicionar_conta_pagar' %}" class="btn btn-primary btn-block">Adicionar Nova Conta a Pagar</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

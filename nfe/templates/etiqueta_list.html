@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+    PROVECTA - ETIQUETA
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/configuraEmpresa.css' %}" />
+<link rel="stylesheet" href="{% static 'css/layoutPagination.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h2 class="container__title">Etiqueta</h2>
+</div>
+<div class="container__view">
+    <div class="cadastro__etiqueta">
+        <a href="{% url 'nfe:etiqueta_create' %}" class="container__ancora"><i class="fa-solid fa-plus"></i> Nova Etiqueta</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cor</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for etiqueta in etiquetas %}
+            <tr>
+                <td>{{ etiqueta.id }}</td>
+                <td>
+                    <span style="display:inline-block; width: 50px; height: 20px; background-color: {{ etiqueta.cor }};"></span>
+                     <!-- Remove essa linha se não quiser mostrar o código da cor -->
+                </td>
+                <td>{{ etiqueta.descricao }}</td>
+                <td class="table__actions">
+                    <a href="{% url 'nfe:etiqueta_update' etiqueta.id %}" class="table__update" title="Editar"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{% url 'nfe:etiqueta_delete' etiqueta.id %}" class="table__delete" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% include 'components/_pagination.html' %}
+</div>
+{% endblock %}

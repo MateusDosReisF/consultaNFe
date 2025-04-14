@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+    PROVECTA - EMPRESA
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/configuraEmpresa.css' %}" />
+<link rel="stylesheet" href="{% static 'css/layoutPagination.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h2 class="container__title">Empresas</h2>
+</div>
+<div class="container__view">
+    <div class="cadastro">
+        <form action="{% url 'nfe:empresa_list' %}" method="get" class="container__form">
+            <input type="text" name="cnpj" placeholder="CNPJ" value="{{ request.GET.cnpj }}" class="container__form__input">
+            <button type="submit" class="container__form__button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+        <a href="{% url 'nfe:empresa_create' %}" class="container__ancora"><i class="fa-solid fa-plus"></i> Nova Empresa</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Razão Social</th>
+                <th class="none">CNPJ</th>
+                <th class="none">Local</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empresa in empresas %}
+            <tr>
+                <td>{{ empresa.id }}</td>
+                <td>{{ empresa.razao_social }}</td>
+                <td class="none">{{ empresa.cnpj }}</td>
+                <td class="none">{{ empresa.local_certificado }}</td>
+                <td class="table__actions">
+                    <a href="{% url 'nfe:empresa_detail' empresa.id %}" class="table__detail" title="Vizualisar"><i class="fa-regular fa-eye"></i></a>
+                    <a href="{% url 'nfe:empresa_update' empresa.id %}" class="table__update" title="Editar"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{% url 'nfe:empresa_delete' empresa.id %}" class="table__delete" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% include 'components/_pagination.html' %}
+</div>
+{% endblock %}

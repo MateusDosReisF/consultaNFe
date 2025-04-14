@@ -1,0 +1,500 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .hamburger{
+    display: none;
+  }
+
+.container__title{
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #2D3748;
+    color: #ffffff;
+    height: 70px;
+    text-indent: 10px;
+}
+
+.container{
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    background-color: #ffffff;
+    height: 100%;
+}
+
+.inputs{
+    display: inline-flex;
+    gap: 1rem;
+    margin: 0.5rem 0 2rem 0;
+    align-items: center;
+    border-bottom: 1px solid #5f5f5f;
+    padding: 1rem;
+    width: 100%;
+}
+
+.inputs__label{
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.inputs__imputs{
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #dddddd;
+}
+
+.inputs__imputs:focus{
+    border: 1px solid #3663b0;
+}
+
+.inputs__buttom{
+    color: #dddddd;
+    background-color: #4a5362;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: none;
+    border: 1px solid #dddddd;
+}
+
+.inputs__buttom:hover{
+    background-color: #2D3748;
+    color: #ffffff;
+}
+
+.mensagem__erro{
+    text-indent: 10px;
+}
+
+/* TABLE*/
+
+.container__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+.container__table__itens__container{
+    color: #ff0000
+}
+
+.container__table__titulos {
+    background-color: #2D3748;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 12px;
+    border: 1px solid #dddddd;
+    text-align: center;
+}
+
+.container__table__itens {
+    padding: 12px;
+    border: 1px solid #dddddd;
+}
+
+.container__table tr:nth-child(odd) .container__table__itens {
+    background-color: #ebe8e8;
+}
+
+.container__table tr:nth-child(even) .container__table__itens {
+    background-color: #ffffff;
+}
+
+.container__table tr:hover .container__table__itens {
+    background-color: #f1f1f1;
+}
+
+.container__table__itens {
+    padding: 12px;
+    text-align: center;
+}
+
+.container__table__xml i{
+    color: #ffffff;
+    background-color: #007bff;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.container__table__xml i:hover {
+    background-color: #0056b3;
+}
+
+.container__table__pdf i{
+    color: #ffffff;
+    background-color: #ff0000;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.container__table__pdf i:hover {
+  background-color: #b30000;
+}
+
+.container__table__cancelado i{
+    color: #ffffff;
+    background-color: #5F5F5F;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.container__table__cancelado i:hover {
+    cursor: default;
+}
+
+/* EFEITO DE CLICK */
+
+#opInfo{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.accordion {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 97%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0 auto 10px auto;
+    border-radius: 5px;
+    position: relative;
+}
+
+.accordion.active, .accordion:hover {
+    background-color: #0056b3;
+}
+
+.accordion i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.panel {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: auto;
+    background-color: #ffffff;
+    transition: max-height 0.3s ease;
+}
+
+.panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.panel table, .panel th, .panel td {
+    border: 1px solid #ddd;
+}
+
+.panel th, .panel td {
+    padding: 12px;
+    text-align: left;
+}
+
+.container__table__itens__container {
+    background-color: #f8d7da; /* Cor de fundo para itens com status diferente de 100 */
+}
+
+
+/* CARDS PROGRESSO */
+
+.progresso {
+    border: 1px solid #c9c9c9;
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4rem 1rem 0 1rem
+}
+
+.card {
+    background-color: #5f5f5f;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 10px;
+    width: 50%;
+    height: 350px;
+    text-align: center;
+    transition: background-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.terminado{
+    justify-content: center;
+}
+
+.card::-webkit-scrollbar {
+    width: 0;
+}
+
+.card__titulo {
+    margin-bottom: 1rem;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border: 2px solid gray;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    background-color: gray;
+}
+
+.icon-circle i {
+    font-size: 1.5em;
+}
+
+.card__paragrafo{
+    margin-top: 8px;
+    text-align: center;
+}
+
+.card__paragrafo strong{
+    font-weight: 600;
+}
+
+/* TROCA DE PROCESSOS */
+
+.bar {
+    height: 10px;
+    width: 70px;
+    background-color: gray;
+    transition: background-color 0.3s;
+}
+
+.card__completo {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.card__erro {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.card__pendente{
+    background-color: #ffae00;
+    color: #ffffff;
+}
+
+.card__completo .icon-circle {
+    background-color: #19702d;
+    border: 2px solid #ffffff;
+}
+
+.card__erro .icon-circle {
+    background-color: #9c1e2a;
+    border: 2px solid #ffffff;
+}
+
+.card__pendente .icon-circle{
+    background-color: #ac790d;
+    border: 2px solid #ffffff;
+}
+
+.bar__completo {
+    background-color: #28a745;
+}
+
+.bar__pendente {
+    background-color: #ffae00;
+}
+
+.bar__erro {
+    background-color: #dc3545;
+}
+
+@media (min-width: 1024px) and (max-width: 1482px){
+    
+    .container__hamburger{
+        background-color: #2D3748;
+    }
+    
+    .hamburger {
+        padding: 15px 0 15px 15px;
+        display: block;
+        font-size: 2rem;
+        color: white;
+        background-color: #2D3748;
+        border: none;
+    }
+
+    .hamburger:hover{
+        cursor: pointer;
+      }
+
+    .container__title{
+        margin: 0;
+        width: 100%;
+    }
+
+    .container{
+        margin: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .inputs__label{
+        margin-bottom: 0;
+    }
+
+    .inputs{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .inputs__imputs{
+        width: 25%;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px){
+
+    .container__hamburger{
+        background-color: #2D3748;
+    }
+    
+    .hamburger {
+        padding: 8px 0 8px 8px;
+        display: block;
+        font-size: 24px;
+        color: white;
+        background-color: #2D3748;
+        border: none;
+    }
+
+    .hamburger:hover{
+        cursor: pointer;
+      }
+
+    .container__title{
+        margin: 0;
+        width: 100%;
+    }
+
+    .container{
+        margin: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .inputs__label{
+        margin-bottom: 0;
+    }
+
+    .inputs{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .inputs__imputs{
+        width: 50%;
+    }
+
+    .progresso{
+        flex-direction: column;
+    }
+
+    .bar{
+        height: 70px;
+        width: 10px;
+    }
+
+    .card{
+        margin-top: 0;
+        width: 55%;
+    }
+
+}
+
+@media (min-width: 100px) and (max-width: 767px){
+
+    .container__hamburger{
+        background-color: #2D3748;
+    }
+    
+    .hamburger {
+        padding: 10px 0 0 10px;
+        display: block;
+        font-size: 24px;
+        color: white;
+        background-color: #2D3748;
+        border: none;
+    }
+
+    .hamburger:hover{
+        cursor: pointer;
+      }
+
+    .container__title{
+        margin: 0;
+        width: 100%;
+    }
+
+    .container{
+        margin: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .inputs__label{
+        margin-bottom: 0;
+    }
+
+    .inputs{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .inputs__imputs{
+        width: 50%;
+    }
+
+    .progresso{
+        flex-direction: column;
+    }
+
+    .bar{
+        height: 70px;
+        width: 10px;
+    }
+
+    .card{
+        margin-top: 0;
+        width: 65%;
+    }
+
+}

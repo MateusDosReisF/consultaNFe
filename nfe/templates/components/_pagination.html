@@ -1,0 +1,45 @@
+<div class="pagination__container">
+    <div class="pagination__controls">
+        {% if page_obj.number > 1 %}
+            <a href="?page=1" class="pagination__button">&laquo;</a>
+        {% else %}
+            <span class="pagination__button disabled">&laquo;</span>
+        {% endif %}
+        
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="pagination__button">&lt;</a>
+        {% else %}
+            <span class="pagination__button disabled">&lt;</span>
+        {% endif %}
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="pagination__button">&gt;</a>
+        {% else %}
+            <span class="pagination__button disabled">&gt;</span>
+        {% endif %}
+        
+        {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination__button">&raquo;</a>
+        {% else %}
+            <span class="pagination__button disabled">&raquo;</span>
+        {% endif %}
+    </div>
+    <div class="pagination__info">
+        <select id="itemsPerPage" onchange="changeItemsPerPage(this)">
+            <option value="10" {% if request.GET.per_page == '10' %}selected{% endif %}>10</option>
+            <option value="30" {% if request.GET.per_page == '30' %}selected{% endif %}>30</option>
+            <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>50</option>
+            <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>100</option>
+        </select>
+        <span class="pagination__text">itens por página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} páginas ({{ page_obj.paginator.count }} itens)</span>
+    </div>
+</div>
+
+<script>
+    function changeItemsPerPage(select) {
+        const perPage = select.value;
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('per_page', perPage);
+        window.location.search = urlParams.toString();
+    }
+</script>

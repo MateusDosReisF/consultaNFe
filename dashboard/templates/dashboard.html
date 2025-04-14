@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}
+    PROVECTA - DASHBOARD
+{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+
+
+    <div class="container__hamburger">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    </div>
+    <form action="{% url 'dashboard' %}" method="GET">
+        <nav class="nav">
+            <h1>Painel Analítico</h1>
+            <div class="nav__inputs">
+                <div>
+                    <label for="database" class="nav__label">Banco:</label>
+                    <select id="database" name="database" onchange="fetchEmpresas()">
+                        <option>Selecione um Banco</option>
+                        {% for banco in nomes_bancos %}
+                        <option value="{{ banco }}">{{ banco }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="empresa" class="nav__label">Empresa:</label>
+                    <select id="empresa" name="empresa">
+                        <!-- Empresas serão adicionadas aqui -->
+                    </select>
+                </div>
+            </div>
+            <div class="nav__inputs">
+                <div>
+                    <label for="data_inicio" class="nav__label">Data: </label>
+                    <input type="date" id="data_inicio" name="data_inicio" required>
+                </div>
+                <label for="data_fim" class="date" >a</label>
+                <div>
+                    <input type="date" id="data_fim" name="data_fim" required>
+                </div>
+            </div>
+            <button type="submit" class="submit">
+                Filtrar
+            </button>
+        </nav>
+    </form>
+
+    <main class="content">
+        <div class="card">
+            <div class="card__icone">
+                <i class="fa-solid fa-coins fa-2x"></i>
+            </div>
+            <div class="card__info__text">
+                <h3>TOTAL VALOR</h3>
+                {% load humanize %}
+                <p>
+                    {{ formatted_valor_nf|default:"0,00" }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__icone">
+                <i class="fas fa-thin fa-print fa-2x fa-inverse"></i>
+            </div>
+            <div class="card__info__text">
+                <h3>TOTAL NOTAS</h3>
+                <p>{{ total_notas }}</p>
+            </div>
+        </div>
+
+        
+            <div class="card">
+                    <div class="card__icone">
+                        <i class="fa-solid fa-file-circle-exclamation fa-2x fa-inverse"></i>
+                    </div>
+                    <div class="card__info__text">
+                        <h3>NF PENDENTE</h3>
+                        <p>{{total_notas_pendente}}</p>
+                    </div>
+            </div>
+
+            <div class="card">
+                <div class="card__icone">
+                        <i class="fa-solid fa-industry fa-2x fa-inverse"></i>
+                        
+                    </div>
+                    <div class="card__info__text">
+                        <h3>CFOP 5124</h3>
+                        <p>{{totalCFOP5124}}</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__icone">
+                        <i class="fa-solid fa-truck-fast fa-2x fa-inverse fa-flip-horizontal"></i>
+                    </div>
+                    <div class="card__info__text">
+                        <h3>CFOP 5902</h3>
+                        <p>{{totalCFOP5902}}</p>
+                    </div>
+                </div>
+
+                <div class="card red-card">
+                    <div class="card__icone" >
+                        <i class="fa-solid fa-file-circle-xmark fa-2x fa-inverse"></i>
+
+                    </div>
+                    <div class="card__info__text">
+                        <h3>CANCELADAS/INUTILIZADAS</h3>
+                        <p>{{total_notas_canceladas}}</p>
+                    </div>
+                </div>
+    </main>
+    <div class="historico">
+        <div class="historico__card">
+            <div class="historico__table-container">
+                <h2 class="historico__titulo"> NOTA CANCELADA/INUTILIDADA/PENDENTE</h2>
+                 {% if resultado_nf and resultado_nf.status != '100' %}
+                    <h3 class="historico__titulo__info">* C = Cancelada  * I = Inutilizada  * P = Pendente</h3>
+                        <table class="historico__table">
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th>Nota</th>
+                                    <th>Serie</th>
+                                    <th>Status</th>
+                                    <th>CFOP</th>
+                                    <th class="responsive">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for nota in resultado_nf %}
+                                    {% if nota.status != '100' %}
+                                        <tr>
+                                            <td>{{ nota.empresa }}</td>
+                                            <td>{{ nota.codigo }}</td>
+                                            <td>{{ nota.serie }}</td>
+                                            
+                                            {% if nota.status == '101' %}
+                                            <td>C</td>
+                                            {% elif nota.status == '102' %}
+                                            <td>I</td>
+                                            {% else %}
+                                            <td>P</td>
+                                            {% endif %}
+                            
+                                            <td>{{ nota.cfop }}</td>
+                                            
+                                            <td class="responsive">R$ {{ nota.valorTotalNF|formatar_valor_brasileiro }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                {% else %}
+                    <p class="historico__nulo">Nenhuma nota encontrada para o filtro especificado.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="historico__card">
+            <div class="historico__table-container">
+                <h2 class="historico__titulo">NOTAS EMITIDAS </h1>
+                {% if resultado_nf %}
+                    <table class="historico__table">
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Nota</th>
+                                <th>Serie</th>
+                                <th  class="responsive">Status</th>
+                                <th>CFOP</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nota in resultado_nf %}
+                            {% if nota.status == '100' %}
+                                    <tr>
+                                        <td>{{ nota.empresa }}</td>
+                                        <td>{{ nota.codigo }}</td>
+                                        <td>{{ nota.serie }}</td>
+                                        <td class="responsive">{{ nota.status }}</td>
+                                        <td>{{ nota.cfop }}</td>
+                                        <td>R$ {{ nota.valorTotalNF|formatar_valor_brasileiro }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="historico__nulo">Nenhuma nota encontrada para o filtro especificado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+        /*Toggle dropdown list*/
+        function toggleDD(myDropMenu) {
+            document.getElementById(myDropMenu).classList.toggle("invisible");
+        }
+        /*Filter dropdown options*/
+        function filterDD(myDropMenu, myDropMenuSearch) {
+            var input, filter, ul, li, a, i;
+            input = document.getElementById(myDropMenuSearch);
+            filter = input.value.toUpperCase();
+            div = document.getElementById(myDropMenu);
+            a = div.getElementsByTagName("a");
+            for (i = 0; i < a.length; i++) {
+                if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    a[i].style.display = "";
+                } else {
+                    a[i].style.display = "none";
+                }
+            }
+        }
+        // Close the dropdown menu if the user clicks outside of it
+        window.onclick = function (event) {
+            if (!event.target.matches('.drop-button') && !event.target.matches('.drop-search')) {
+                var dropdowns = document.getElementsByClassName("dropdownlist");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (!openDropdown.classList.contains('invisible')) {
+                        openDropdown.classList.add('invisible');
+                    }
+                }
+            }
+        }
+
+
+    </script>
+    <script>
+        function fetchEmpresas() {
+            var banco = document.getElementById('database').value;
+            var empresaSelect = document.getElementById('empresa');
+            empresaSelect.innerHTML = ''; // Limpa as opções anteriores
+
+            if (banco) {
+                fetch(`https:SUA-API-AKI/obter_empresas?banco=${banco}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(data.error);
+                        } else {
+                            data.forEach(empresa => {
+                                var option = document.createElement('option');
+                                option.value = empresa.codigo;
+                                option.text = empresa.nomeEmpresa;
+                                empresaSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar empresas:', error));
+            }
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    PROVECTA - DELETAR EMPRESA
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/configuraEmpresa.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h2 class="container__title">Deletar Empresa</h2>
+</div>
+<div class="container__view">
+    <div class="card">
+        <p class="card__text">Tem certeza de que deseja excluir a empresa "<strong>{{ object.razao_social }}</strong>" ?</p>
+        <form method="post" class="card__form">
+            {% csrf_token %}
+            <button type="submit" class="card__form__deletar">Deletar</button>
+        </form>
+    </div>
+    <div class="card__voltar">
+        <a href="{% url 'nfe:empresa_list' %}" class="card__form__voltar">Voltar</a>
+    </div>
+</div>
+
+{% endblock %}

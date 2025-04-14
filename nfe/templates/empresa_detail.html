@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    PROVECTA - DETALHES EMPRESA
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/configuraEmpresa.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h2 class="container__title">Detalhes Empresa</h2>
+</div>
+<div class="container__view">
+    <div class="card">
+        <h3 class="card__title">{{ object.razao_social }}</h3>
+        <p class="card__text"><strong>CNPJ:</strong> {{ object.cnpj }}</p>
+        <p class="card__text"><strong>Senha:</strong> {{ object.senha_certificado }}</p>
+        <p class="card__text"><strong>Local:</strong> {{ object.local_certificado }}</p>
+        {% if object.status %}
+            <p class="card__text"><strong>Status:</strong> Ativo</p>
+        {% else %}
+            <p class="card__text"><strong>Status:</strong> Inativo</p>
+        {% endif %}
+    </div>
+    <div class="card__voltar">
+        <a href="{% url 'nfe:empresa_list' %}" class="card__form__voltar">Voltar</a>
+    </div>
+</div>
+{% endblock %}

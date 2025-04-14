@@ -1,0 +1,59 @@
+<!-- financeiro/templates/financeiro/adicionar_conta_receber.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Conta a Receber</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f7fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card p-4">
+            <h2 class="mb-4 text-center">Adicionar Conta a Receber</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
+                    {{ form.descricao }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.valor.id_for_label }}" class="form-label">Valor</label>
+                    {{ form.valor }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.data_vencimento.id_for_label }}" class="form-label">Data de Vencimento</label>
+                    {{ form.data_vencimento}}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Adicionar <i class="fas fa-plus"></i></button>
+            </form>
+            <a href="{% url 'listar_contas_receber' %}" class="btn btn-secondary btn-block mt-3">Voltar <i class="fas fa-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

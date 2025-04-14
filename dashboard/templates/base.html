@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <script src="https://kit.fontawesome.com/0af87ce8f2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}">
+            <img src="{% static 'img/logo.png' %}" alt="Logo PROVECTA" class="sidebar__img"/>
+        </a>
+        <ul>
+            <li>
+                <a href="{% url 'acompanhar_op' %}" class="sidebar__ancora">
+                    <i class="fa-solid fa-layer-group"></i>Acompanhar OP
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'nfe:listar_xmls' %}" class="sidebar__ancora">
+                    <i class="fa-solid fa-magnifying-glass"></i>Consulta NFe
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'nfe:empresa_list' %}" class="sidebar__ancora">
+                    <i class="fa-regular fa-building"></i>Empresa
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar__ancora">
+                    <i class="fa-solid fa-square-plus"></i>Cadastro
+                    <i class="fa-solid fa-chevron-left arrow-icon"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{% url 'nfe:etiqueta_list' %}"><i class="fa-solid fa-ticket"></i>Etiqueta</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar__ancora">
+                    <i class="fa-solid fa-money-bill-wave"></i>Financeiro
+                    <i class="fa-solid fa-chevron-left arrow-icon"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{% url 'listar_contas_pagar' %}"><i class="fa-solid fa-arrow-down"></i>Contas a Pagar</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'listar_contas_receber' %}"><i class="fa-solid fa-arrow-up"></i>Contas a Receber</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="#" class="sidebar__ancora"><i class="fa-solid fa-power-off"></i>Sair</a></li>
+        </ul>
+    </aside>
+
+    <div class="overlay"></div>
+
+    <div>
+        {% block content %}
+        
+        {% endblock %}
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector(".sidebar").classList.toggle("open");
+            document.querySelector(".overlay").classList.toggle("open");
+        }
+
+        function closeSidebar() {
+            document.querySelector(".sidebar").classList.remove("open");
+            document.querySelector(".overlay").classList.remove("open");
+        }
+
+        document.querySelector(".overlay").addEventListener("click", closeSidebar);
+
+        window.addEventListener("scroll", function() {
+            // Fechar a sidebar se estiver aberta e a página for rolada
+            if (document.querySelector(".sidebar").classList.contains("open")) {
+                closeSidebar();
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            
+            sidebarItems.forEach(item => {
+                const sidebarLink = item.querySelector('.sidebar__ancora');
+                const submenu = item.querySelector('.submenu');
+                const arrowIcon = sidebarLink.querySelector('.arrow-icon');
+
+                // Função para abrir/fechar o submenu
+                function toggleSubmenu() {
+                    submenu.classList.toggle('active');
+                    arrowIcon.classList.toggle('rotate');
+                }
+
+                // Fechar submenu ao clicar fora
+                function closeSubmenu(event) {
+                    if (!item.contains(event.target)) {
+                        submenu.classList.remove('active');
+                        arrowIcon.classList.remove('rotate');
+                    }
+                }
+
+                // Adiciona evento de clique no link do menu
+                sidebarLink.addEventListener('click', function(event) {
+                    event.preventDefault(); // Evitar comportamento padrão
+                    toggleSubmenu();
+                });
+
+                // Evento para fechar o submenu ao clicar fora
+                document.addEventListener('click', function(event) {
+                    closeSubmenu(event);
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

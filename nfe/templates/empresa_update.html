@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+    PROVECTA - EDITAR EMPRESA
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/configuraEmpresa.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h2 class="container__title">Editar Empresa</h2>
+</div>
+<div class="container__view">
+    <div class="card">
+        <form method="post" class="card__form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card__form__group">
+                <label for="id_razao_social" class="card__label">Razão Social:</label>
+                <input type="text" name="razao_social" value="{{ object.razao_social }}" maxlength="100" required id="id_razao_social" class="card__form__input uppercase" oninput="convertToUpper(this)"">
+            </div>
+            <div class="card__form__group">
+                <label for="id_cnpj" class="card__label">CNPJ:</label>
+                <input type="text" name="cnpj" value="{{ object.cnpj }}" maxlength="14" required id="id_cnpj" class="card__form__input">
+            </div>
+            <div class="card__form__group">
+                <label for="id_senha_certificado" class="card__label">Senha:</label>
+                <input type="password" name="senha_certificado" value="{{ object.senha_certificado }}" maxlength="50" required id="id_senha_certificado" class="card__form__input">
+            </div>
+            <div class="card__form__group">
+                <label for="id_local_certificado" class="card__label">Local:</label>
+                <input type="file" name="local_certificado" id="id_local_certificado" class="card__form__input">
+            </div>
+            <div class="card__form__group">
+                <label for="id_local_certificado" class="card__label">Status:</label>
+                {% if object.status %}
+                <input type="checkbox" name="status" id="id_status" checked>
+                {% else %}
+                <input type="checkbox" name="status" id="id_status">
+                {% endif %}
+            </div>
+            <button type="submit" class="card__form__cadastrar">Cadastrar</button>
+        </form>
+    </div>
+    <div class="card__voltar">
+        <a href="{% url 'nfe:empresa_list' %}" class="card__form__voltar">Voltar</a>
+    </div>
+</div>
+
+<script>
+    function convertToUpper(element) {
+    element.value = element.value.toUpperCase();
+}
+</script>
+{% endblock %}

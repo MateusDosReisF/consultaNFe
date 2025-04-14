@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% load formatar_data %}
+{% load custom_filters %}
+
+{% block title %}
+    PROVECTA - CONSULTA CNPJ
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/consultaCnpj.css' %}" />
+<link rel="stylesheet" href="{% static 'css/layoutPagination.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <div class="consultar">
+        <h2 class="container__title">Consulta CNPJ</h2>
+        <form action="{% url 'nfe:listar_xmls' %}" method="get" class="container__title">
+            <select name="empresa_cnpj" class="form__select__busca margin" id="empresaSelect">
+                <option value="">Selecione a Empresa</option>
+                {% for empresa in empresas %}
+                    <option value="{{ empresa.cnpj }}"
+                        {% if request.GET.empresa_cnpj == empresa.cnpj %}selected{% endif %}>
+                        {{ empresa.razao_social }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+<div class="container">
+        <div class="consultas">
+            <div class="form__button">
+                <button type="button" id="open-popup-btn" class="button consulta"><i class="fa-solid fa-magnifying-glass"></i> Consultar NFe's</button>
+                <button type="button" id="manifestar-btn" class="button manifesto"><i class="fa-solid fa-cloud-arrow-up"></i> Manifestar Notas</button>
+            
+            </div>
+            <div class="cadastro">
+                <form id="filtro-form" method="GET" action="{% url 'nfe:listar_xmls' %}" class="container__form">
+                    <input type="text" id="numero-nf" name="numero_nf" placeholder="Número da Nota Fiscal" value="{{ request.GET.numero_nf }}" class="container__form__input">
+                    <button type="submit" class="container__form__button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+            </div>
+        </div> 
+
+        <!-- Pop-up (modal) -->
+<div id="popup-modal" class="modal">
+    <div class="modal-content">
+        <!-- Botão para fechar o pop-up -->
+        <span id="close-popup-btn" class="close">&times;</span>
+        
+        <!-- Formulário dentro do modal -->
+        <form id="empresa-form" method="POST" action="{% url 'nfe:consultar_notas' %}">
+            {% csrf_token %}
+            <div class="form">
+                <label for="empresa-select" class="form__titulo">Selecionar Empresa:</label>
+                <select id="empresa-select" name="empresa_id" class="form__select__modal">
+                    <option value="">Selecione a Empresa</option>
+                    {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}" data-razao-social="{{ empresa.razao_social }}">{{ empresa.razao_social }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form__button">
+                <button type="submit" class="button consulta">
+                    <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <div class="panel">
+        <table class="container__table" id="notas-tabela">
+            <thead>
+                <tr>
+                    <th class="container__table__titulos"></th>
+                    <th class="container__table__titulos">Número da Nota Fiscal</th>
+                    <th class="container__table__titulos">Status</th>
+                    <th class="container__table__titulos">Situação</th>
+                    <th class="container__table__titulos">Nome do Emissor</th>
+                    <th class="container__table__titulos">Valor</th>
+                    <th class="container__table__titulos" id="data-emissao-header">Data Emissão</th>
+                    <th class="container__table__titulos">XML</th>
+                    <th class="container__table__titulos">PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in nf_completa %}
+                <tr class="nota-row" data-emissor="{{ nota.nome_emissor }}">
+                    <td class="container__table__itens center">
+                        <input type="checkbox" name="select">
+                    </td>
+                    <td class="container__table__itens center">{{ nota.nf }}</td>
+                    {% if nota.status_nfe == "100" %}
+                    <td class="container__table__itens center">Autorizada</td>
+                    {% elif nota.status_nfe == "101" %}
+                    <td class="container__table__itens center">Cancelada</td>
+                    {% else %}
+                    <td class="container__table__itens center">Denegada</td>
+                    {% endif %}
+                    <td class="container__table__itens center space" id="observacao-{{ nota.nf }}">
+                        <span class="etiqueta" style="background-color: {{ nota.etiqueta.cor }};"> {{ nota.etiqueta.descricao }}</span>
+                    </td>
+                    <td class="container__table__itens" style="text-transform: uppercase;">{{ nota.emissor }}</td>
+                    <td class="container__table__itens center">R$ {{ nota.valor_total|formatar_valor_brasileiro }}</td>
+                    <td class="container__table__itens center" data-data-emissao="{{ nota.data|date:'Y-m-d' }}">{{ nota.data|formatar_data_brasileira }}</td>
+                    <td class="container__table__itens center">
+                        <a href="data:text/xml;base64,{{ nota.xml_base64 }}" download="{{ nota.nf  }}.xml" class="container__table__xml"><i class="fa-solid fa-download"></i></a>
+                    </td>
+                    <td class="container__table__itens center">
+                        <a class="container__table__pdf" onclick="gerarPDF('{{ nota.xml_base64 }}', '{{ nota.nf }}')"><i class="fa-solid fa-download"></i></a>
+                    </td>
+                </tr>
+                <!-- Submenu -->
+                <tr class="submenu__nfe">
+                    <td colspan="8" class="container__table__submenu container__table__itens">
+                        <p>Detalhes da nota: {{ nota.chaveNfe }}</p>
+                        <p style="font-size: 1.2em; color: #2c3e50; font-weight: bold; margin: 10px 0;">
+                            <span style="color: #2980b9;">Destinatário:</span> {{ nota.destinatario }}
+                          </p>
+                        <div class="etiqueta-form">
+                            <label for="etiqueta-select">Adicionar Etiqueta:</label>
+                            <select id="etiqueta-select-{{ nota.id }}" class="select__etiqueta">
+                                {% for etiqueta in etiquetas %}
+                                    <option value="{{ etiqueta.id }}">{{ etiqueta.descricao }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="adicionar-etiqueta" data-nota-id="{{ nota.id }}">Adicionar</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'components/_pagination2.html' %}
+</div>
+
+<script>
+    // Obtém os elementos do DOM
+    var modal = document.getElementById("popup-modal");
+    var openBtn = document.getElementById("open-popup-btn");
+    var closeBtn = document.getElementById("close-popup-btn");
+
+    // Quando o usuário clicar no botão "Consultar NFe's", abre o modal
+    openBtn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // Quando o usuário clicar no "x", fecha o modal
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // Quando o usuário clicar fora do modal, também fecha
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    document.getElementById('empresaSelect').addEventListener('change', function() {
+        this.form.submit();
+    });
+</script>
+
+<script>
+    function gerarPDF(xmlBase64, numeroNota) {
+    const apiUrl = 'https://ws.meudanfe.com/api/v1/get/nfe/xmltodanfepdf/API';
+    const xmlDecoded = atob(xmlBase64);
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain',
+        },
+        body: xmlDecoded
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Falha ao gerar PDF do DANFE!');
+        }
+    })
+    .then(pdfBase64 => {
+        // Remove aspas duplas da resposta, se houver
+        pdfBase64 = pdfBase64.replace(/"/g, '');
+        // Gera o link para download do PDF
+        const link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + pdfBase64;
+        link.download = numeroNota + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);  // Remove o link após o clique
+    })
+    .catch(error => {
+        console.error('Erro ao gerar o PDF:', error);
+        alert('Erro ao gerar o PDF. Confira o XML da nota.');
+    });
+}
+
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const empresaSelect = document.getElementById('empresa-select');
+    const tabelaNotas = document.getElementById('notas-tabela').getElementsByTagName('tbody')[0];
+    const dataEmissaoHeader = document.getElementById('data-emissao-header');
+
+    function toggleSubmenu(event) {
+        const targetRow = event.currentTarget;
+        const submenu__nfe = targetRow.nextElementSibling;
+
+        console.log('Toggling submenu for:', targetRow); // Adiciona um log para depuração
+
+        if (submenu__nfe && submenu__nfe.classList.contains('submenu__nfe')) {
+            submenu__nfe.classList.toggle('visible');
+        }
+    }
+
+    function closeSubmenus(event) {
+        const submenu__nfes = tabelaNotas.querySelectorAll('.submenu__nfe.visible');
+        submenu__nfes.forEach(submenu__nfe => {
+            if (!event.target.closest('.nota-row') && !event.target.closest('.submenu__nfe')) {
+                submenu__nfe.classList.remove('visible');
+            }
+        });
+    }
+
+    Array.from(tabelaNotas.getElementsByClassName('nota-row')).forEach(row => {
+        row.addEventListener('click', toggleSubmenu);
+    });
+
+    document.addEventListener('click', closeSubmenus);
+
+});
+</script>
+
+<script>
+document.querySelectorAll('.adicionar-etiqueta').forEach(button => {
+    button.addEventListener('click', function() {
+        const notaId = this.getAttribute('data-nota-id');
+        const etiquetaId = document.getElementById(`etiqueta-select-${notaId}`).value;
+
+        fetch("{% url 'nfe:adicionar_etiqueta' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 'nota_id': notaId, 'etiqueta_id': etiquetaId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            location.reload(true);  // Adicione isto para verificar a resposta no console
+        })
+        .catch(error => {
+            console.error('Erro ao processar a solicitação:', error);
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% block title %}
+    PROVECTA - ACOMPANHAR OP
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/acopanharOp.css' %}" />
+
+<div class="container__hamburger">
+    <button class="hamburger" onclick="toggleSidebar()">&#9776; Menu</button>
+    <h3 class="container__title">Acompanhar OP</h3>
+</div>
+<div class="container">
+    <form id="opForm" method="GET">
+        <div class="inputs">
+            <label for="database" class="inputs__label">Banco:</label>
+            <select id="database" name="database" class="inputs__imputs">
+                {% for banco in nomes_bancos %}
+                <option value="{{ banco }}">{{ banco }}</option>
+                {% endfor %}
+            </select>
+            <label for="opNumber" class="inputs__label">Número da OP:</label>
+            <input type="text" id="opNumber" name="op" class="inputs__imputs" placeholder="Digite o número da OP">
+            <button type="submit" class="inputs__buttom">Buscar</button>
+        </div>
+    </form>
+    <div id="opInfo">
+        {% if cfop_groups %}
+            {% for cfop, items in cfop_groups.items %}
+                <button class="accordion"> NOTA FISCAL COM CFOP: {{ cfop }} <i class="fas fa-chevron-down"></i></button>
+                <div class="panel">
+                    <table class="container__table">
+                        <thead>
+                            <tr>
+                                <th class="container__table__titulos">Código NF</th>
+                                <th class="container__table__titulos">Série</th>
+                                <th class="container__table__titulos">Cliente</th>
+                                <th class="container__table__titulos">Data</th>
+                                <th class="container__table__titulos">Número Item</th>
+                                <th class="container__table__titulos">Código Produto</th>
+                                <th class="container__table__titulos">Nome Produto</th>
+                                <th class="container__table__titulos">Quantidade</th>
+                                <th class="container__table__titulos">Preço</th>
+                                <th class="container__table__titulos">Subtotal</th>
+                                <th class="container__table__titulos">XML</th>
+                                <th class="container__table__titulos">CCE</th>
+                                <th class="container__table__titulos">PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr {% if item.nf_statusnfe != '100' %} class="container__table__itens__container" {% endif %}>
+                                    <td class="container__table__itens">{{ item.nf_codigo }}</td>
+                                    <td class="container__table__itens">{{ item.nf_serie }}</td>
+                                    <td class="container__table__itens">{{ item.nf_nomecliente }}</td>
+                                    <td class="container__table__itens">{{ item.nf_data|date:"d/m/Y" }}</td>
+                                    <td class="container__table__itens">{{ item.ni_item }}</td>
+                                    <td class="container__table__itens">{{ item.ni_codigoproduto }}</td>
+                                    <td class="container__table__itens">{{ item.ni_nomeproduto }}</td>
+                                    <td class="container__table__itens">{{ item.ni_quantidade|floatformat:2 }}</td>
+                                    <td class="container__table__itens">{{ item.ni_preco|floatformat:2 }}</td>
+                                    <td class="container__table__itens">{{ item.ni_subtotal|floatformat:2 }}</td>
+                                    
+                                    <td class="container__table__itens">
+                                        {% if item.nf_statusnfe == '100' %}
+                                        <a href="data:text/xml;base64,{{ item.nf_xmlnfe }}" onclick="baixarXML('{{ item.nf_xmlnfe }}', '{{ item.nf_codigo }}')" title="Baixar XML" class="container__table__xml"><i class="fa-solid fa-download"></i></a>
+                                        
+                                        {% else %}
+                                        <p title="XML não disponível" class="container__table__cancelado"><i class="fa-solid fa-download"></i></p>
+                                        {% endif %}
+                                    </td>
+                                    <td class="container__table__itens">
+                                        {% if item.cce_xml and item.cce_xml != 'None' %}
+                                            <a href="#" onclick="baixarXML('{{ item.cce_xml }}', '{{ item.nf_codigo }}')" title="Baixar XML" class="container__table__xml"><i class="fa-solid fa-download"></i></a>
+                                        {% else %}
+                                            <p title="XML não disponível" class="container__table__cancelado">
+                                                <i class="fa-solid fa-download"></i>
+                                            </p>
+                                        {% endif %}
+                                    </td>
+                                    <td class="container__table__itens center"> 
+                                        {% if item.nf_statusnfe == '100' %}
+                                            <a class="container__table__pdf" href="#" onclick="gerarPDF('{{ item.nf_xmlnfe }}', '{{ item.nf_codigo }}')"><i class="fa-solid fa-download"></i></a>
+                                        {% else %}
+                                            <p title="XML não disponível" class="container__table__cancelado"><i class="fa-solid fa-download"></i></p>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="mensagem__erro">Nenhum dado encontrado para o número da OP fornecido.</p>
+        {% endif %}
+        
+        {% if cfop_groups or quantidade_entrada_item %}
+        <div class="content__cards">
+            <div class="progresso">
+                {% if quantidade_entrada_item %}
+                {% with quantidade_entrada_item.0 as item %}
+                <div class="card" id="entrada" data-estoque="{{ item.quantidadeEmEstoque|floatformat:2 }}">
+                    <div class="content">
+                        <h2 class="card__titulo">ENTRADA</h2>
+                        <div class="icon-circle">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <hr>
+                        {% for item in quantidade_entrada_item %}
+                            <p class="card__paragrafo"><strong>NF: </strong>{{ item.notafiscal }}</p>
+                            <p class="card__paragrafo"><strong>Entrada: </strong> {{item.codigpEntrada}}</p>
+                            <p class="card__paragrafo"><strong>Quant: </strong> {{ item.quantidade|floatformat:2 }}</p>
+                            <p class="card__paragrafo"><strong>Pendente: </strong> {{ item.quantidadeEmEstoque|floatformat:2 }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endwith %}
+                <div class="bar" id="bar1"></div>
+                {% endif %}
+            
+                {% if cfop_groups %}
+                <div class="card" id="em-processo" data-pendente="{% if quantidade_entrada_item and quantidade_entrada_item.0.quantidadeEmEstoque == 0 %}0{% else %}1{% endif %}">
+                    <div class="content">
+                        <h2 class="card__titulo">EM PROCESSO</h2>
+                        <div class="icon-circle">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <hr>
+                        {% for cfop, items in cfop_groups.items %}
+                            {% for item in items %}
+                                {% if item.nf_statusnfe == '100' %}
+                                    {% if item.ni_cfop == '5902' or item.ni_cfop == '6902'  %}
+                                        <div class="process-item">
+                                            <p class="card__paragrafo"><strong>NF:</strong> {{ item.nf_codigo }}</p>
+                                            <p class="card__paragrafo" id="quantidade-entrada"><strong>Quant:</strong> {{ item.ni_quantidade|floatformat:0 }}</p>
+                                        </div>
+                                    {% elif item.ni_cfop == '1902' or item.ni_cfop == '2902'   %}
+                                        <div class="process-item">
+                                            <hr>
+                                            <p class="card__paragrafo" style="color: rgb(242, 247, 0);"><strong>NF EST:</strong> {{ item.nf_codigo }}</p>
+                                            <p class="card__paragrafo" id="quantidade-entrada" style="color: rgb(242, 247, 0);"><strong>Quant:</strong> {{ item.ni_quantidade|floatformat:0 }}</p>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="bar" id="bar2"></div>
+                {% endif %}
+            
+                <div class="card terminado" id="terminado" data-pendente="{% if quantidade_entrada_item and quantidade_entrada_item.0.quantidadeEmEstoque == 0 %}0{% else %}1{% endif %}">
+                    <div class="content">
+                        <h2 class="card__titulo">TERMINADO</h2>
+                        <div class="icon-circle">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                                <div class="bar" id="bar3"></div>
+                                <div class="card" id="lavanderia">
+                                <div class="content">
+                                    <h2 class="card__titulo">LAVANDERIA</h2>
+                                <div class="icon-circle">
+                                    <i class="fas fa-tshirt"></i>
+                                </div>
+                                    <hr>
+                    {% for cfop, items in cfop_groups.items %}
+                    {% for item in items %}
+                        {% if item.nf_statusnfe == '100' %}
+                            {% if item.ni_cfop == '5924' or item.ni_cfop == '6924' %}
+                                    <div class="process-item">
+                                        <p class="card__paragrafo"><strong>NF:</strong> {{ item.nf_codigo }}</p>
+                                        <p class="card__paragrafo" id="quantidade-lavanderia"><strong>Quant:</strong> {{ item.ni_quantidade|floatformat:0 }}</p>
+                                    </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="process-item">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+
+    
+    <script>
+    function gerarPDF(xmlText, numeroNota) {
+    const apiUrl = 'https://ws.meudanfe.com/api/v1/get/nfe/xmltodanfepdf/API';
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain',  // Certifique-se que está enviando como texto puro
+        },
+        body: xmlText  // Envia o XML diretamente como texto
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();  // A resposta é o PDF codificado em Base64
+        } else {
+            throw new Error('Falha ao gerar PDF do DANFE!');
+        }
+    })
+    .then(pdfBase64 => {
+        // Remove aspas duplas da resposta, se houver
+        pdfBase64 = pdfBase64.replace(/"/g, '');
+        
+        // Gera o link para download do PDF
+        const link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + pdfBase64;
+        link.download = numeroNota + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);  // Remove o link após o clique
+    })
+    .catch(error => {
+        console.error('Erro ao gerar o PDF:', error);
+        alert('Erro ao gerar o PDF. Confira o XML da nota.');
+    });
+}
+
+    </script>
+        
+    <script>
+        function baixarXML(xmlContent, nomeArquivo) {
+            // Cria um Blob com o conteúdo XML
+            const blob = new Blob([xmlContent], { type: 'application/xml' });
+            
+            // Cria uma URL para o Blob
+            const url = URL.createObjectURL(blob);
+            
+            // Cria um link para o download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nomeArquivo + '.xml';
+             // Define o nome do arquivo
+            link.click(); // Simula um clique no link para iniciar o download
+            
+            // Libera a URL criada
+            URL.revokeObjectURL(url);
+        }
+       
+
+        
+        </script>
+        
+    <script>
+    
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    var acc = document.getElementsByClassName("accordion");
+    for (var i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var panel = this.nextElementSibling;
+            var icon = this.querySelector("i");
+            if (panel.style.maxHeight) {
+                panel.style.maxHeight = null;
+                icon.classList.remove("fa-chevron-up");
+                icon.classList.add("fa-chevron-down");
+            } else {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+                icon.classList.remove("fa-chevron-down");
+                icon.classList.add("fa-chevron-up");
+            }
+        });
+    }
+
+    function ajustarCorCard(cardId, barraId, status, completeOnly = false) {
+        var card = document.getElementById(cardId);
+        var barra = document.getElementById(barraId);
+        if (card) {
+            if (status < 0) {
+                card.classList.add("card__erro");
+                barra.classList.add("bar__erro");
+            } else if (status === 0) {
+                card.classList.add("card__completo");
+                barra.classList.add("bar__completo");
+            } else if (!completeOnly) {
+                card.classList.add("card__pendente");
+                barra.classList.add("bar__pendente");
+            }
+        }
+    }
+
+    var entradaCard = document.getElementById("entrada");
+    var estoque = 0;
+    if (entradaCard) {
+        estoque = parseFloat(entradaCard.getAttribute("data-estoque"));
+        if (estoque < 0) {
+            ajustarCorCard("entrada", "bar1", estoque);
+        } else {
+            ajustarCorCard("entrada", "bar1", 0);
+        }
+    } else {
+        // Ajustar todos os cards e barras para vermelho se o card de entrada não existir
+        ajustarCorCard("em-processo", "bar2", -1);
+        ajustarCorCard("terminado", "bar3", -1);
+        ajustarCorCard("lavanderia", "bar4", -1); // Ajuste conforme necessário
+    }
+
+    var emProcessoCard = document.getElementById("em-processo");
+    if (emProcessoCard) {
+        var pendente = parseFloat(emProcessoCard.getAttribute("data-pendente"));
+        ajustarCorCard("em-processo", "bar2", pendente);
+    }
+
+    var terminadoCard = document.getElementById("terminado");
+    if (terminadoCard) {
+        if (estoque === 0) {
+            ajustarCorCard("terminado", "bar3", 0);
+        }
+    }
+
+    // Lógica para o card de lavanderia
+    var lavanderiaCard = document.getElementById("lavanderia");
+    var quantidadeEntrada = parseFloat(document.getElementById("quantidade-entrada").textContent.split(': ')[1]);
+    var quantidadeLavanderia = parseFloat(document.getElementById("quantidade-lavanderia").textContent.split(': ')[1]);
+
+    if (lavanderiaCard) {
+        if (quantidadeEntrada < quantidadeLavanderia) {
+            ajustarCorCard("lavanderia", "bar4", -1);
+        } else if (quantidadeEntrada > quantidadeLavanderia && quantidadeLavanderia > 0) {
+            lavanderiaCard.classList.add("card__pendente");
+            document.getElementById("bar4").classList.add("bar__pendente");
+        } else if (quantidadeEntrada === quantidadeLavanderia) {
+            ajustarCorCard("lavanderia", "bar4", 0);
+        }
+    }
+});
+
+
+    </script>
+</div>
+{% endblock %}
